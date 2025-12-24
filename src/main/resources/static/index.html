@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Menu | Delicious Eats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth scrolling for category tabs */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 pb-20">
+
+<header class="bg-white p-6 shadow-sm sticky top-0 z-50">
+    <h1 class="text-3xl font-black text-blue-600">Delicious Eats</h1>
+    <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Table #04 • Digital Menu</p>
+</header>
+
+<main id="customerMenu" class="p-4 space-y-4">
+    <div class="animate-pulse flex space-x-4 p-4 bg-white rounded-2xl">
+        <div class="rounded-xl bg-gray-200 h-24 w-24"></div>
+        <div class="flex-1 space-y-4 py-1">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    async function loadMenu() {
+        try {
+            const res = await fetch('http://192.168.0.102:8080/api/dishes');
+            const dishes = await res.json();
+            const container = document.getElementById('customerMenu');
+
+            // If no dishes exist
+            if (dishes.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-10">Menu is being updated. Check back soon!</p>`;
+                return;
+            }
+
+            container.innerHTML = dishes.map(dish => `
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden flex p-3 gap-4 border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="relative">
+                            <img src="${dish.imageUrl || 'https://via.placeholder.com/150'}"
+                                 class="w-28 h-28 rounded-xl object-cover shadow-inner">
+                            ${dish.veg ?
+                '<span class="absolute top-1 left-1 bg-white p-0.5 rounded border border-green-500"><div class="w-2 h-2 bg-green-500 rounded-full"></div></span>' :
+                '<span class="absolute top-1 left-1 bg-white p-0.5 rounded border border-red-500"><div class="w-2 h-2 bg-red-500 rounded-full"></div></span>'
+            }
+                        </div>
+
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${dish.name}</h3>
+                                <p class="text-gray-400 text-xs mt-1 line-clamp-2">${dish.description || 'No description available.'}</p>
+                            </div>
+                            <div class="flex justify-between items-end mt-2">
+                                <span class="text-xl font-black text-blue-600">₹${dish.price}</span>
+                                <button class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform">
+                                    Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+        } catch (err) {
+            document.getElementById('customerMenu').innerHTML = `<p class="text-center text-red-500">Error connecting to server.</p>`;
+        }
+    }
+    // Add this at the top of your loadMenu function
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableNumber = urlParams.get('table') || 'General';
+    document.querySelector('header p').innerText = `Table #${tableNumber} • Digital Menu`;
+    window.onload = loadMenu;
+</script>
+</body>
+</html>
