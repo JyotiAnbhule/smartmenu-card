@@ -1,5 +1,6 @@
 package com.smartmenu.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -11,8 +12,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String name;
+    private Integer displayOrder;
 
-    private Integer displayOrder; // To decide which category shows first (e.g., Starters first)
+    @OneToMany(mappedBy = "category")
+    @JsonIgnore // <--- ADD THIS LINE! This stops the 500 error.
+    private List<Dish> dishes;
 }

@@ -4,15 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 
-@Entity // This tells JPA to create a table in MySQL named 'dish'
-@Data   // This Lombok annotation creates getters, setters, and toString automatically
+@Entity
+@Data
 public class Dish {
-
-    // Add this inside the Dish class
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,9 +19,17 @@ public class Dish {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
-    private boolean isVeg;
+    // Explicitly mapping to the columns seen in your 'DESCRIBE dish;' output
+    @Column(name = "is_veg", nullable = false)
+    private boolean veg;
 
-    private boolean isAvailable = true;
+    @Column(name = "is_available", nullable = false)
+    private boolean available = true;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }
